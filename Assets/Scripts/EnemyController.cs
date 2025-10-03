@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
     public float speed;
+    bool broken = true;
     Rigidbody2D rigidbody2d;
     public bool vertical;
     public float maxMoveTime = 2f;
     private float currMoveTime;
-    private int direction;
+    private int direction = 1;
     Animator animator;
 
 
@@ -18,7 +20,6 @@ public class EnemyController : MonoBehaviour
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
         currMoveTime = maxMoveTime;
-        direction = 1;
         animator = GetComponent<Animator>();
     }
 
@@ -30,14 +31,19 @@ public class EnemyController : MonoBehaviour
         {
             direction = direction * -1;
             currMoveTime = maxMoveTime;
-            if (Random.Range(1,100) > 50){
-            vertical = !vertical;
+            if (Random.Range(1, 100) > 50)
+            {
+                vertical = !vertical;
+            }
         }
-        }
-        
+
     }
     void FixedUpdate()
     {
+        if (!broken)
+        {
+            return;
+        }
         Vector2 position = rigidbody2d.position;
         if (vertical)
         {
@@ -51,7 +57,7 @@ public class EnemyController : MonoBehaviour
             animator.SetFloat("Move Y", 0);
             position.x = position.x + direction * speed * Time.deltaTime;
         }
-        
+
         rigidbody2d.MovePosition(position);
     }
     void OnTriggerEnter2D(Collider2D collision)
@@ -59,5 +65,9 @@ public class EnemyController : MonoBehaviour
         PlayerController player = collision.GetComponent<PlayerController>();
         if (player != null)
             player.ChangeHealth(-1);
+    }
+    public void Fix()
+    {
+        Destroy(gameObject);
     }
 }
